@@ -35,3 +35,11 @@ data/           各圖使用的資料（JSON）
 
 純靜態網頁，圖表使用 [d3](https://d3js.org/) v7（CDN）。本機開啟需透過 http 伺服器
 （例如 `python -m http.server`），直接雙擊 `index.html` 會因瀏覽器限制讀不到資料。
+
+## Cloudflare Pages 自動部署
+
+正式網址：https://mataian-dam-sediment-dashboard.pages.dev/
+
+推送 `main` 後，GitHub Actions 會將 `index.html`、`js/`、`data/`、`docs/` 部署到既有 Pages 專案；也可於 Actions 手動執行。原 GitHub Pages 部署設定不變。
+
+首次啟用需在本儲存庫 Settings → Secrets and variables → Actions 新增 `CLOUDFLARE_API_TOKEN`。Token 僅授予目標帳號的 Account → Cloudflare Pages → Edit 權限。請勿將 Token 寫入程式碼或 README。加入 Secret 後，重新執行 Deploy to Cloudflare Pages 即可。
