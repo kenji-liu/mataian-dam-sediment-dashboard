@@ -212,13 +212,13 @@ dash.calc('funnel', {
   function drawRadar() {
     const box = document.getElementById('radar'); if (!ready(box, ['radar'])) return;
     const rows = dash.data('radar').data;
-    const axes = [['erosion', '沖蝕量', '萬 m³'], ['deposition', '淤積量', '萬 m³'], ['active_pct', '變動面積比例', '%'], ['mean_abs_dz', '平均 |Δz|', 'm'], ['p02_lowering', '最大下降 (P2)', 'm'], ['p98_raising', '最大抬升 (P98)', 'm']];
+    const axes = [['erosion', '被沖走的量', '萬 m³', '被沖走的土方'], ['deposition', '堆起來的量', '萬 m³', '堆起來的土方'], ['active_pct', '變動的面積比例', '%', '地面變動超過 1 m 的面積比例'], ['mean_abs_dz', '平均變動高度', 'm', '每一格平均上下變動'], ['p02_lowering', '下降最多處', 'm', '下降最劇烈的 2% 格子，至少降了'], ['p98_raising', '抬升最多處', 'm', '抬升最劇烈的 2% 格子，至少升了']];
     const H = 430; const { svg, W } = svgIn(box, H);
     const R = Math.min(W / 2 - 92, H / 2 - 56), cx = W / 2, cy = H / 2 - 10;
     const mx = Object.fromEntries(axes.map(([k]) => [k, d3.max(rows, r => Number(r[k]))]));
     const ang = i => -Math.PI / 2 + i * 2 * Math.PI / axes.length;
     [.25, .5, .75, 1].forEach(f => svg.append('polygon').attr('points', axes.map((_, i) => [cx + Math.cos(ang(i)) * R * f, cy + Math.sin(ang(i)) * R * f].join(',')).join(' ')).attr('fill', 'none').attr('stroke', 'var(--cds-chart-grid)'));
-    axes.forEach(([, n], i) => { svg.append('line').attr('x1', cx).attr('y1', cy).attr('x2', cx + Math.cos(ang(i)) * R).attr('y2', cy + Math.sin(ang(i)) * R).attr('stroke', 'var(--cds-chart-grid)'); const a = ang(i), lx = cx + Math.cos(a) * (R + 12), ly = cy + Math.sin(a) * (R + 12); cap(svg.append('text').attr('x', lx).attr('y', ly).attr('dy', '.35em').attr('text-anchor', Math.abs(Math.cos(a)) < .2 ? 'middle' : Math.cos(a) > 0 ? 'start' : 'end')).text(n); });
+    axes.forEach(([, n], i) => { svg.append('line').attr('x1', cx).attr('y1', cy).attr('x2', cx + Math.cos(ang(i)) * R).attr('y2', cy + Math.sin(ang(i)) * R).attr('stroke', 'var(--cds-chart-grid)'); const a = ang(i), lx = cx + Math.cos(a) * (R + 16), ly = cy + Math.sin(a) * (R + 16) + (Math.abs(Math.cos(a)) < .2 ? (Math.sin(a) < 0 ? -8 : 10) : 0); cap(svg.append('text').attr('x', lx).attr('y', ly).attr('dy', '.35em').attr('text-anchor', Math.abs(Math.cos(a)) < .2 ? 'middle' : Math.cos(a) > 0 ? 'start' : 'end')).text(n); });
     const tp = tipFor(box); const d = anim('radar');
     const lg = svg.append('g');
     rows.forEach((r, j) => {
@@ -228,7 +228,7 @@ dash.calc('funnel', {
         .attr('points', pts.map(() => [cx, cy].join(',')).join(' '));
       pg.transition().delay(j * 120).duration(d).ease(d3.easeCubicOut).attr('points', pts.map(p => p.join(',')).join(' '));
       pts.forEach(p => svg.append('circle').attr('cx', p[0]).attr('cy', p[1]).attr('r', 4.5).attr('fill', c).attr('stroke', 'var(--color-panel)').attr('stroke-width', 1.5).attr('opacity', d ? 0 : 1).style('pointer-events', 'none').transition().delay(j * 120 + d).duration(200).attr('opacity', 1));
-      pg.on('mousemove', ev => { pg.attr('fill-opacity', .4); tp.show(ev, [['t', r.zone + `（${fmt(r.area_ha)} ha）`], ...axes.map(([a, n, u]) => [null, `${n}　${fmt(r[a])} ${u}`])]); })
+      pg.on('mousemove', ev => { pg.attr('fill-opacity', .4); tp.show(ev, [['t', r.zone + `（${fmt(r.area_ha)} ha）`], ...axes.map(([a, n, u, l]) => [null, `${l}　${fmt(r[a])} ${u}`])]); })
         .on('mouseleave', () => { pg.attr('fill-opacity', .2); tp.hide(); })
         .on('click', () => setPeriod('tot', k));
       const lx = 6 + j * (W - 12) / 4, ly = H - 10;
@@ -518,6 +518,20 @@ dash.calc('funnel', {
     };
     if (tm.status === 'ok') fillTable('tm-table', tm, ['zone', 'e1', 'e2', 'e3', 'et', 'd1', 'd2', 'd3', 'dt', 'net']);
     if (ve.status === 'ok') fillTable('vn-table', ve, ['label', 'area_ha', 'share']);
+    const rd = dash.data('radar'), rtb = document.querySelector('#rd-table tbody');
+    if (rd.status === 'ok' && rtb) {
+      rtb.replaceChildren(); const f1 = d3.format(',.1f');
+      rd.data.forEach(r => {
+        const tr = document.createElement('tr');
+        ['zone', 'erosion', 'deposition', 'active_pct', 'mean_abs_dz', 'p02_lowering', 'p98_raising'].forEach((c, i) => {
+          const td = document.createElement('td'); const v = r[c];
+          if (i === 0) { const sw = document.createElement('span'); sw.className = 'swatch'; sw.style.background = zoneColor(ZK_REV[v]); td.append(sw, document.createTextNode(v)); }
+          else td.textContent = (c === 'erosion' || c === 'deposition') ? fmt(Number(v)) : f1(Number(v));
+          tr.appendChild(td);
+        });
+        rtb.appendChild(tr);
+      });
+    }
   }
 
   const ZK_NAME = { A: 'A 崩積區', B: 'B 殘壩區', C: 'C 治理界點以上河道', D: 'D 界點下游河床' };
