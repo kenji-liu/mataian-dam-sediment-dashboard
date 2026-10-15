@@ -51,7 +51,7 @@ dash.calc('profile_tbl', {
   const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || 'currentColor';
 
   const META = {
-    rates: { t: '殘壩區每日流失速率', n: '各期 B 區流失量 ÷ 天數，萬 m³/天。紅柱是潰決後第一期（9/25–10/13），藍柱是之後各期。', src: ['b_rate', 'periods'] },
+    rates: { t: '殘壩區每日流失速率', n: '各期 B 區流失量 ÷ 天數，萬 m³/天。紅柱是潰決後第一期（2025/9/25–10/13），藍柱是之後各期。', src: ['b_rate', 'periods'] },
     cumul: { t: '各區累積土砂變化', n: '以 2025/9/25 為零點逐期累加，萬 m³。往下＝累積流失，往上＝累積淤積。', src: ['cumul'] },
     profile: { t: '河道縱斷面：殘壩頂 → 下游 15 km', n: '河床高程（m），五個時間點比較。滑鼠左右移動，會在線上標出該位置每一期的高程數值；下方表格列出每整數公里的數值。', src: ['profile'] },
     budget: { t: '土砂收支：2025/9/25 → 2026/9/14', n: 'A+B 流失的總量，以及留在 C 河道、留在 D 界點下游河床、已流出治理範圍各占多少（萬 m³）。', src: ['budget'] }
@@ -99,7 +99,7 @@ dash.calc('profile_tbl', {
     const x = d3.scaleBand(rows.map(r => r.period), [ml, W - 8]).padding(.35);
     const y = d3.scaleLinear([0, d3.max(rows, r => r.rate) * 1.15], [H - mb, 16]).nice();
     svg.append('g').attr('transform', `translate(${ml},0)`).call(d3.axisLeft(y).ticks(5).tickSize(-(W - ml - 8))).call(styleAxis).call(g => g.select('.domain').remove());
-    svg.append('g').attr('transform', `translate(0,${H - mb})`).call(d3.axisBottom(x).tickSize(0).tickPadding(8).tickFormat(p => ({ '250925→251013': '9/25–10/13', '251013→260314': '10/13–3/14', '260314→260914': '3/14–9/14' })[p] || p)).call(styleAxis);
+    svg.append('g').attr('transform', `translate(0,${H - mb})`).call(d3.axisBottom(x).tickSize(0).tickPadding(8).tickFormat(p => ({ '250925→251013': '2025/9/25–10/13', '251013→260314': '2025/10/13–2026/3/14', '260314→260914': '2026/3/14–9/14' })[p] || p)).call(styleAxis);
     svg.append('g').selectAll('text').data(rows).join('text').attr('x', d => x(d.period) + x.bandwidth() / 2).attr('y', H - mb + 34).attr('text-anchor', 'middle').attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--ms-fs-chart)').text(d => days[d.period] ? `${days[d.period]} 天` : '');
     const bw = Math.min(88, x.bandwidth());
     rows.forEach((r, i) => {
@@ -117,11 +117,11 @@ dash.calc('profile_tbl', {
     const ser = [['B', 'B 殘壩區', css('--cds-chart-status-critical')], ['C', 'C 河道', dash.colors[0]], ['D', 'D 界點下游', dash.colors[2]], ['A', 'A 崩積區', dash.colors[3]]];
     const last = rows[rows.length - 1];
     const endLbl = ser.map(s => `${s[1]} ${sgn(last[s[0]])}`);
-    const mr = measure(svg, endLbl) * 1.2 + 14, ml = 56, mb = 50;
-    const x = d3.scaleUtc(d3.extent(rows, r => r.t), [ml + 10, W - mr]);
+    const mr = measure(svg, endLbl) * 1.4 + 22, ml = 56, mb = 50;
+    const x = d3.scaleUtc(d3.extent(rows, r => r.t), [ml + 50, W - mr]);
     const y = d3.scaleLinear(d3.extent(rows.flatMap(r => ser.map(s => r[s[0]]))), [H - mb, 16]).nice();
     svg.append('g').attr('transform', `translate(${ml},0)`).call(d3.axisLeft(y).ticks(6).tickFormat(fmt).tickSize(-(W - ml - mr))).call(styleAxis).call(g => g.select('.domain').remove());
-    svg.append('g').attr('transform', `translate(0,${H - mb})`).call(d3.axisBottom(x).tickValues(rows.map(r => r.t)).tickFormat(d3.utcFormat('%-m/%-d'))).call(styleAxis).call(g => g.selectAll('.tick text').attr('dy', (d, i) => i === 1 ? '2.2em' : '.9em').style('font-size', 'var(--ms-fs-chart-lg)'));
+    svg.append('g').attr('transform', `translate(0,${H - mb})`).call(d3.axisBottom(x).tickValues(rows.map(r => r.t)).tickFormat(d3.utcFormat('%Y/%-m/%-d'))).call(styleAxis).call(g => g.selectAll('.tick text').attr('dy', '.9em').attr('text-anchor', (d, i) => i === 0 ? 'end' : i === 1 ? 'start' : 'middle').attr('dx', (d, i) => i === 0 ? '.5em' : i === 1 ? '-.5em' : null).style('font-size', W < 560 ? 'var(--ms-fs-chart)' : 'var(--ms-fs-chart-lg)'));
     svg.append('line').attr('x1', ml).attr('x2', W - mr).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '4 3');
     const spread = (items, gap) => { items.sort((a, b) => a.y - b.y); for (let i = 1; i < items.length; i++) if (items[i].y - items[i - 1].y < gap) items[i].y = items[i - 1].y + gap; return items; };
     const ends = spread(ser.map((s, i) => ({ y: y(last[s[0]]), s, lbl: endLbl[i] })), 22);
@@ -131,7 +131,7 @@ dash.calc('profile_tbl', {
       const L = p.node().getTotalLength();
       p.attr('stroke-dasharray', `${L} ${L}`).attr('stroke-dashoffset', L).transition().duration(DUR * 1.4).ease(d3.easeCubicOut).attr('stroke-dashoffset', 0).on('end', function () { d3.select(this).attr('stroke-dasharray', null); });
       svg.append('g').selectAll('circle').data(rows).join('circle').attr('cx', r => x(r.t)).attr('cy', r => y(r[k])).attr('r', 6.5).attr('fill', col).attr('stroke', 'var(--color-panel)').attr('stroke-width', 2)
-        .on('mousemove', (ev, r) => showTip(ev, [['t', `${r.date}（距 9/25 ${Math.round((r.t - rows[0].t) / 864e5)} 天）`], ...ser.map(s => [null, `${s[1]}　${sgn(r[s[0]])} 萬 m³`, s[2]])])).on('mouseleave', hideTip);
+        .on('mousemove', (ev, r) => showTip(ev, [['t', `${r.date}（距 2025/9/25 ${Math.round((r.t - rows[0].t) / 864e5)} 天）`], ...ser.map(s => [null, `${s[1]}　${sgn(r[s[0]])} 萬 m³`, s[2]])])).on('mouseleave', hideTip);
     });
     // a value label at every point (labels in the same column are spread apart)
     rows.forEach((r, j) => {
@@ -177,7 +177,7 @@ dash.calc('profile_tbl', {
         labs.forEach(l => l.attr('opacity', 0));
         vis.forEach(o => labs[o.i].attr('x', x(r.dist_km) + (right ? 12 : -12)).attr('y', o.y).attr('dy', '.35em').attr('text-anchor', right ? 'start' : 'end').attr('opacity', 1).text(`${d3.format(',.1f')(r[o.k])} m`));
         const b0 = r.d250925;
-        showTip(ev, [['t', `距殘壩頂 ${r.dist_km.toFixed(1)} km`], ...ser.filter(s => r[s[0]] != null).map(s => [null, `${s[1]}　${d3.format(',.1f')(r[s[0]])} m` + (s[0] !== 'd250925' && b0 != null ? `（較 9/25 ${sg(r[s[0]] - b0)} m）` : ''), s[2]])]);
+        showTip(ev, [['t', `距殘壩頂 ${r.dist_km.toFixed(1)} km`], ...ser.filter(s => r[s[0]] != null).map(s => [null, `${s[1]}　${d3.format(',.1f')(r[s[0]])} m` + (s[0] !== 'd250925' && b0 != null ? `（較 2025/9/25 ${sg(r[s[0]] - b0)} m）` : ''), s[2]])]);
       })
       .on('mouseleave', () => { rule.attr('opacity', 0); kmTag.attr('opacity', 0); dots.forEach(d => d.attr('opacity', 0)); labs.forEach(l => l.attr('opacity', 0)); hideTip(); });
     legend(ser.map(s => [s[1], s[2]]));

@@ -135,6 +135,10 @@ body { font-family: "Microsoft YaHei", "微軟雅黑", "Microsoft JhengHei", "Pi
 .ms .lc-stack .lc-list { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15.5rem), 1fr)); margin-top: var(--cds-gap-md); gap: var(--cds-gap-md); }
 .ms .lc-stack .lc-item.on, .ms .lc-stack .lc-item:focus-visible { transform: translateY(-3px); }
 .ms .tm-table th, .ms .tm-table td { padding-left: .5rem; padding-right: .5rem; }
+.ms .sp-seg { flex-wrap: wrap; max-width: 100%; }
+.ms #tm-table th, .ms #pf-table th { white-space: normal; line-height: 1.3; vertical-align: bottom; }
+.ms #vn-table td:first-child { line-height: 1.5; }
+.ms #tm-table th:first-child, .ms #tm-table td:first-child, .ms #pf-table th:first-child { white-space: nowrap; }
 [data-dash-source-state=empty] { color: transparent; }
 [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 .ms-fail { display: flex; align-items: center; justify-content: center; gap: .4rem; min-height: 380px; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
@@ -305,7 +309,7 @@ body { font-family: "Microsoft YaHei", "微軟雅黑", "Microsoft JhengHei", "Pi
       <span class="ms-badge">⛏️</span>
       <div><div class="tag">第一章 · 殘壩區</div><h2>殘壩下切變慢了，但還沒停</h2></div>
     </div>
-    <div class="ms-chap-body"><p>殘壩區每天流失的土砂，從 9/25–10/13 的 <b data-source="b_rate" data-field="rate" data-where="period=250925→251013">—</b> 萬 m³，降到 10/13–3/14 的 <b data-source="b_rate" data-field="rate" data-where="period=251013→260314">—</b> 萬，3/14–9/14 只剩 <b data-source="b_rate" data-field="rate" data-where="period=260314→260914">—</b> 萬（這段期間含 7 月的颱風）。</p><p>殘壩區仍有 5,000 萬 m³ 以上土砂，下切動能還在。</p></div>
+    <div class="ms-chap-body"><p>殘壩區每天流失的土砂，從 2025/9/25–10/13 的 <b data-source="b_rate" data-field="rate" data-where="period=250925→251013">—</b> 萬 m³，降到 2025/10/13–2026/3/14 的 <b data-source="b_rate" data-field="rate" data-where="period=251013→260314">—</b> 萬，2026/3/14–9/14 只剩 <b data-source="b_rate" data-field="rate" data-where="period=260314→260914">—</b> 萬（這段期間含 7 月的颱風）。</p><p>殘壩區仍有 5,000 萬 m³ 以上土砂，下切動能還在。</p></div>
     <div class="ms-card">
       <h3 class="c-title">—</h3>
       <div class="note c-note">—</div>
@@ -318,7 +322,7 @@ body { font-family: "Microsoft YaHei", "微軟雅黑", "Microsoft JhengHei", "Pi
       <span class="ms-badge">📈</span>
       <div><div class="tag">第二章 · 累積變化</div><h2>一邊流失、一邊淤積</h2></div>
     </div>
-    <div class="ms-chap-body"><p>以潰決後 9/25 為零點累加：B 區一路下降到 <b data-source="cumul" data-field="B" data-where="date=2026-09-14">—</b> 萬 m³，C 區每一期都是淨淤積，累積 <b data-source="cumul" data-field="C" data-where="date=2026-09-14">—</b> 萬 m³，沒有止淤跡象。</p><p>A 區變化較小，但崩崖上緣仍有局部後退。</p></div>
+    <div class="ms-chap-body"><p>以潰決後 2025/9/25 為零點累加：B 區一路下降到 <b data-source="cumul" data-field="B" data-where="date=2026-09-14">—</b> 萬 m³，C 區每一期都是淨淤積，累積 <b data-source="cumul" data-field="C" data-where="date=2026-09-14">—</b> 萬 m³，沒有止淤跡象。</p><p>A 區變化較小，但崩崖上緣仍有局部後退。</p></div>
     <div class="ms-card">
       <h3 class="c-title">—</h3>
       <div class="note c-note">—</div>
@@ -331,7 +335,7 @@ body { font-family: "Microsoft YaHei", "微軟雅黑", "Microsoft JhengHei", "Pi
       <span class="ms-badge">⛰️</span>
       <div><div class="tag">第三章 · 縱斷面</div><h2>上游下切、中游淤高</h2></div>
     </div>
-    <div class="ms-chap-body"><p>距殘壩頂 1.4 km 處河床，0816 為 <b data-source="profile" data-field="d250816" data-where="dist_km=1.4">—</b> m，潰決後 0925 為 <b data-source="profile" data-field="d250925" data-where="dist_km=1.4">—</b> m，到 0914 降至 <b data-source="profile" data-field="d260914" data-where="dist_km=1.4">—</b> m：侵蝕遷急點持續往上游推。</p><p>距壩 10 km 處河床從 <b data-source="profile" data-field="d250925" data-where="dist_km=10">—</b> m 淤高到 <b data-source="profile" data-field="d260914" data-where="dist_km=10">—</b> m，通洪斷面持續縮小，是現階段主要風險。</p></div>
+    <div class="ms-chap-body"><p>距殘壩頂 1.4 km 處河床，2025/8/16 為 <b data-source="profile" data-field="d250816" data-where="dist_km=1.4">—</b> m，潰決後 2025/9/25 為 <b data-source="profile" data-field="d250925" data-where="dist_km=1.4">—</b> m，到 2026/9/14 降至 <b data-source="profile" data-field="d260914" data-where="dist_km=1.4">—</b> m：侵蝕遷急點持續往上游推。</p><p>距壩 10 km 處河床從 <b data-source="profile" data-field="d250925" data-where="dist_km=10">—</b> m 淤高到 <b data-source="profile" data-field="d260914" data-where="dist_km=10">—</b> m，通洪斷面持續縮小，是現階段主要風險。</p></div>
     <div class="ms-card">
       <h3 class="c-title">—</h3>
       <div class="note c-note">—</div>
@@ -340,7 +344,7 @@ body { font-family: "Microsoft YaHei", "微軟雅黑", "Microsoft JhengHei", "Pi
       <h4 class="pm-title" style="margin-top: var(--cds-gap-lg)">📍 每整數公里的河床高程（m）</h4>
       <div class="note" style="margin-top: 0">距殘壩頂的公里數與五期高程；最右欄是 2026/9/14 較 2025/9/25 的高程變化（負值＝河床下降，正值＝河床抬升）。</div>
       <div class="tm-wrap"><table class="tm-table" id="pf-table" data-source="profile_tbl" data-row-key="km">
-        <thead><tr><th data-field="km">距殘壩頂 km</th><th data-field="d250816">8/16</th><th data-field="d250925">9/25</th><th data-field="d251013">10/13</th><th data-field="d260314">3/14</th><th data-field="d260914">9/14</th><th data-field="chg">9/14 較 9/25</th></tr></thead><tbody></tbody></table></div>
+        <thead><tr><th data-field="km">距殘壩頂 km</th><th data-field="d250816">2025/8/16</th><th data-field="d250925">2025/9/25</th><th data-field="d251013">2025/10/13</th><th data-field="d260314">2026/3/14</th><th data-field="d260914">2026/9/14</th><th data-field="chg">2026/9/14 較 2025/9/25</th></tr></thead><tbody></tbody></table></div>
     </div>
   </section>
   <section class="ms-chap ms-band reveal" id="chap-budget" data-step="budget" style="--band:#1fa774">
@@ -366,7 +370,7 @@ body { font-family: "Microsoft YaHei", "微軟雅黑", "Microsoft JhengHei", "Pi
       <div class="sp-bar">
         <div><h3>沖淤分布地圖</h3><div class="note" id="map-note">50 m 網格平均高程變化（只顯示 |Δz| ≥ 3 m 的格子），底圖為衛星影像</div></div>
         <div class="sp-seg" id="map-seg" role="group" aria-label="時段">
-          <button data-p="tot" aria-pressed="true">9/25–9/14 全期</button><button data-p="p1">9/25–10/13</button><button data-p="p2">10/13–3/14</button><button data-p="p3">3/14–9/14</button>
+          <button data-p="tot" aria-pressed="true">2025/9/25–2026/9/14 全期</button><button data-p="p1">2025/9/25–10/13</button><button data-p="p2">2025/10/13–2026/3/14</button><button data-p="p3">2026/3/14–9/14</button>
         </div>
       </div>
       <div class="sp-box sp-map dash-skeleton" id="map" data-source="mapgrid geo"></div>
@@ -412,18 +416,18 @@ body { font-family: "Microsoft YaHei", "微軟雅黑", "Microsoft JhengHei", "Pi
       </div>
       <div class="sp-card" id="tree-card" style="grid-column: 1 / -1">
         <h3>樹狀圖：沖蝕與淤積，各發生在哪一區、哪一段期間</h3>
-        <div class="note">怎麼讀：左邊這張是「<b>被沖走</b>」的土砂，右邊這張是「<b>堆起來</b>」的土砂。每一張裡，<b>大塊 = 一個分區</b>（顏色和地圖一樣：A 紫、B 紅、C 藍、D 綠），大塊裡再依<b>期間</b>切成小格（深色 = 9/25–10/13，中等 = 10/13–3/14，淺色 = 3/14–9/14）。<b>格子越大，土方越多</b>。兩張圖各自縮放，請以格子上的數字比較。點小格可以在上方地圖看那個分區與期間。</div>
+        <div class="note">怎麼讀：左邊這張是「<b>被沖走</b>」的土砂，右邊這張是「<b>堆起來</b>」的土砂。每一張裡，<b>大塊 = 一個分區</b>（顏色和地圖一樣：A 紫、B 紅、C 藍、D 綠），大塊裡再依<b>期間</b>切成小格（深色 = 2025/9/25–10/13，中等 = 2025/10/13–2026/3/14，淺色 = 2026/3/14–9/14）。<b>格子越大，土方越多</b>。兩張圖各自縮放，請以格子上的數字比較。點小格可以在上方地圖看那個分區與期間。</div>
         <div class="sp-box dash-skeleton" id="tree" data-source="treemap"></div>
         <div class="ms-legend" id="tree-legend"></div>
         <div class="tm-wrap" style="margin-top: var(--cds-gap-md)"><table class="tm-table" id="tm-table" data-source="tmtable" data-row-key="zone">
-          <thead><tr><th data-field="zone">分區</th><th data-field="e1">沖蝕 9/25–10/13</th><th data-field="e2">沖蝕 10/13–3/14</th><th data-field="e3">沖蝕 3/14–9/14</th><th data-field="et">沖蝕 合計</th><th data-field="d1">淤積 9/25–10/13</th><th data-field="d2">淤積 10/13–3/14</th><th data-field="d3">淤積 3/14–9/14</th><th data-field="dt">淤積 合計</th><th data-field="net">淨變化</th></tr></thead><tbody></tbody></table></div>
+          <thead><tr><th data-field="zone">分區</th><th data-field="e1">沖蝕<br>2025/9/25–<br>10/13</th><th data-field="e2">沖蝕<br>2025/10/13–<br>2026/3/14</th><th data-field="e3">沖蝕<br>2026/3/14–<br>9/14</th><th data-field="et">沖蝕<br>合計</th><th data-field="d1">淤積<br>2025/9/25–<br>10/13</th><th data-field="d2">淤積<br>2025/10/13–<br>2026/3/14</th><th data-field="d3">淤積<br>2026/3/14–<br>9/14</th><th data-field="dt">淤積<br>合計</th><th data-field="net">淨變化</th></tr></thead><tbody></tbody></table></div>
         <div class="note" style="margin: var(--cds-gap-xs) 0 0">單位：萬 m³。只計 |Δz| &gt; 1 m 的格點。淨變化 = 淤積合計 − 沖蝕合計，負值代表該區整體在流失。</div>
       </div>
     </section>
 
 
   <footer class="ms-foot" id="method">
-    方法：五期 DEM（250816、250925、251013、260314、260914）重取樣至 5 m 共同網格，扣除穩定區系統偏差（中位數 +0.04～+0.48 m），偵測門檻 1 m。A/B/C 分區為目視劃定的近似範圍，D 區依衛星影像上的礫石河道範圍劃定。各區的沖淤量以 2025/9/25 為基準、與後續各期 DEM 直接相減；分期的值為累積值逐期相減。樹狀圖、文氏圖等的沖蝕與淤積量只計 |Δz| > 1 m 的格點，因此與淨變化略有差異。衛星影像為兩期空拍正射影像縮成約 10 m 解析度顯示。
+    方法：五期 DEM（2025/8/16、2025/9/25、2025/10/13、2026/3/14、2026/9/14）重取樣至 5 m 共同網格，扣除穩定區系統偏差（中位數 +0.04～+0.48 m），偵測門檻 1 m。A/B/C 分區為目視劃定的近似範圍，D 區依衛星影像上的礫石河道範圍劃定。各區的沖淤量以 2025/9/25 為基準、與後續各期 DEM 直接相減；分期的值為累積值逐期相減。樹狀圖、文氏圖等的沖蝕與淤積量只計 |Δz| > 1 m 的格點，因此與淨變化略有差異。衛星影像為兩期空拍正射影像縮成約 10 m 解析度顯示。
   </footer>
 </div>
 

@@ -45,10 +45,10 @@ dash.calc('venn_tbl', {
   description: '依在哪些時段發生變動分組的面積（公頃）與占變動總面積的比例。',
   fn: (venn) => {
     const tot = venn.reduce((a, r) => a + Number(r.area_ha), 0);
-    const names = ['9/25–10/13', '10/13–3/14', '3/14–9/14'];
+    const names = ['2025/9/25–10/13', '2025/10/13–2026/3/14', '2026/3/14–9/14'];
     return venn.map(r => {
       const on = [r.in_p1, r.in_p2, r.in_p3].map((v, i) => v ? names[i] : null).filter(Boolean);
-      const label = on.length === 3 ? '三個時段都有（持續活動）' : on.length === 1 ? '只有 ' + on[0] : on.join('＋');
+      const label = on.length === 3 ? '三個時段都有（持續活動）' : on.length === 1 ? '只有 ' + on[0] : on.join(' ＋ ');
       return { label, code: (r.in_p1 ? 1 : 0) + (r.in_p2 ? 2 : 0) + (r.in_p3 ? 4 : 0), area_ha: Number(r.area_ha), share: Math.round(Number(r.area_ha) / tot * 1000) / 10, n: on.length };
     }).sort((a, b) => b.n - a.n || b.area_ha - a.area_ha);
   }
@@ -76,12 +76,13 @@ dash.calc('funnel', {
   const probe = document.createElement('span'); probe.style.display = 'none'; document.getElementById('spatial').appendChild(probe);
   function rgb(v, fb) { probe.style.color = ''; probe.style.color = v; const c = d3.color(getComputedStyle(probe).color); return c ? c.formatRgb() : fb; }
   const PNAME = { p1: '250925→251013', p2: '251013→260314', p3: '260314→260914' };
-  const PLAB = { tot: '9/25–9/14 潰決後至今', p1: '9/25–10/13', p2: '10/13–3/14', p3: '3/14–9/14' };
+  const PLAB = { tot: '2025/9/25–2026/9/14 全期', p1: '2025/9/25–10/13', p2: '2025/10/13–2026/3/14', p3: '2026/3/14–9/14' };
+  const PFULL = { '250925→251013': '2025/9/25–10/13', '251013→260314': '2025/10/13–2026/3/14', '260314→260914': '2026/3/14–9/14' };
   const ZK = { 'A 崩積區': 'A', 'B 殘壩區': 'B', 'C 治理界點以上河道': 'C', 'D 界點下游河床': 'D' };
   const state = { p: 'tot', zone: null, drawn: {} };
   const PC = { 1: '#ff4d4f', 2: '#2fd07f', 4: '#3b9cff', 3: '#ffd23f', 5: '#c77dff', 6: '#19d3da', 7: '#ff2bd6' };
   let persistHi = null;
-  const PN = ['9/25–10/13', '10/13–3/14', '3/14–9/14'];
+  const PN = ['2025/9/25–10/13', '2025/10/13–2026/3/14', '2026/3/14–9/14'];
   const codeName = c => [1, 2, 4].filter(b => c & b).map(b => PN[Math.log2(b)]).join(' ＋ ');
   function zoneColor(k) { return { A: dash.colors[3], B: rgb('var(--cds-chart-status-critical)', '#c0392b'), C: dash.colors[0], D: dash.colors[2] }[k]; }
   function ramp() {
@@ -188,12 +189,12 @@ dash.calc('funnel', {
     const box = document.getElementById('heat'); if (!ready(box, ['heat'])) return;
     const rows = dash.data('heat').data;
     const zones = Object.keys(ZK), periods = Object.values(PNAME);
-    const { svg, W } = svgIn(box, 380);
-    const ml = 150, mt = 42, H = 380;
+    const { svg, W } = svgIn(box, 396);
+    const ml = 150, mt = 60, H = 396;
     const x = d3.scaleBand(periods, [ml, W - 6]).padding(.06), y = d3.scaleBand(zones, [mt, H - 8]).padding(.06);
     const mx = d3.max(rows, r => Math.abs(r.per_month)); const col = ramp();
     const scale = v => col(Math.sign(v) * Math.sqrt(Math.abs(v) / mx));
-    periods.forEach(p => { const k = Object.keys(PNAME).find(q => PNAME[q] === p); cap(svg.append('text').attr('x', x(p) + x.bandwidth() / 2).attr('y', mt - 12).attr('text-anchor', 'middle')).text(PLAB[k]).style('font-weight', 800); });
+    periods.forEach(p => { const k = Object.keys(PNAME).find(q => PNAME[q] === p); const HL = { p1: ['2025/9/25–', '10/13'], p2: ['2025/10/13–', '2026/3/14'], p3: ['2026/3/14–', '9/14'] }[k]; HL.forEach((ln, i) => cap(svg.append('text').attr('x', x(p) + x.bandwidth() / 2).attr('y', mt - 30 + i * 18).attr('text-anchor', 'middle')).text(ln).style('font-weight', 800)); });
     zones.forEach(z => svg.append('text').attr('x', ml - 8).attr('y', y(z) + y.bandwidth() / 2).attr('dy', '.35em').attr('text-anchor', 'end').attr('fill', 'var(--color-fg)').style('font-size', 'var(--ms-fs-chart)').text(z));
     const tp = tipFor(box); const d = anim('heat');
     rows.forEach((r, i) => {
@@ -242,12 +243,13 @@ dash.calc('funnel', {
     const rows = dash.data('venn').data;
     const H = 470; const { svg, W } = svgIn(box, H);
     const r = Math.min(W / 3.4, 125), cx = W / 2, cy = H / 2 - 2, o = r * .62;
-    const C = [{ k: 'in_p1', n: '9/25–10/13', x: cx - o, y: cy - o * .55, c: zoneColor('B') }, { k: 'in_p2', n: '10/13–3/14', x: cx + o, y: cy - o * .55, c: dash.colors[2] }, { k: 'in_p3', n: '3/14–9/14', x: cx, y: cy + o * .7, c: dash.colors[0] }];
+    const C = [{ k: 'in_p1', n: PN[0], x: cx - o, y: cy - o * .55, c: zoneColor('B') }, { k: 'in_p2', n: PN[1], x: cx + o, y: cy - o * .55, c: dash.colors[2] }, { k: 'in_p3', n: PN[2], x: cx, y: cy + o * .7, c: dash.colors[0] }];
     const d = anim('venn');
     C.forEach((c, i) => {
       svg.append('circle').attr('cx', c.x).attr('cy', c.y).attr('r', d ? 0 : r).attr('fill', c.c).attr('fill-opacity', .22).attr('stroke', c.c).attr('stroke-width', 3).transition().delay(i * 150).duration(d).ease(d3.easeBackOut).attr('r', r);
-      const ly = i < 2 ? c.y - r - 8 : c.y + r + 16;
-      svg.append('text').attr('x', c.x + (i === 0 ? -r * .3 : i === 1 ? r * .3 : 0)).attr('y', ly).attr('text-anchor', 'middle').attr('fill', c.c).style('font-size', 'var(--ms-fs-chart-lg)').style('font-weight', 800).text(c.n);
+      const ly = i < 2 ? c.y - r - 8 : c.y + r + 18;
+      const lx = i === 0 ? Math.max(4, c.x - r) : i === 1 ? Math.min(W - 4, c.x + r) : c.x;
+      svg.append('text').attr('x', lx).attr('y', ly).attr('text-anchor', i === 0 ? 'start' : i === 1 ? 'end' : 'middle').attr('fill', c.c).style('font-size', 'var(--ms-fs-chart)').style('font-weight', 800).text(c.n);
     });
     const pos = f => { const on = C.filter(c => f[c.k]); const off = C.filter(c => !f[c.k]); let x = d3.mean(on, c => c.x), y = d3.mean(on, c => c.y); if (on.length === 1) { const ox = d3.mean(off, c => c.x), oy = d3.mean(off, c => c.y); x += (x - ox) * .45; y += (y - oy) * .45; } if (on.length === 2) { const oc = off[0]; x += (x - oc.x) * .28; y += (y - oc.y) * .28; } return [x, y]; };
     const tp = tipFor(box); const mx = d3.max(rows, q => q.area_ha);
@@ -258,7 +260,7 @@ dash.calc('funnel', {
       g.append('rect').attr('x', x - cw / 2).attr('y', y - ch / 2).attr('width', cw).attr('height', ch).attr('rx', ch / 2).attr('fill', PC[code]).attr('stroke', '#fff').attr('stroke-width', 2.5).style('cursor', 'pointer').on('click', () => { persistHi = persistHi === code ? null : code; drawPersist(); });
       g.append('text').attr('x', x).attr('y', y).attr('dy', '.35em').attr('text-anchor', 'middle').attr('fill', '#fff').attr('stroke', 'rgba(0,0,0,.55)').attr('stroke-width', 3).attr('paint-order', 'stroke').style('font-size', core ? '1.35rem' : 'var(--ms-fs-chart-lg)').style('font-weight', 800).style('font-variant-numeric', 'tabular-nums').style('pointer-events', 'none').text(fmt(q.area_ha));
       g.append('rect').attr('x', x - 40).attr('y', y - 22).attr('width', 80).attr('height', 44).attr('fill', 'transparent')
-        .on('mousemove', ev => tp.show(ev, [['t', core ? '三段期間都有變動（持續活動區）' : '只在：' + [q.in_p1 && '9/25–10/13', q.in_p2 && '10/13–3/14', q.in_p3 && '3/14–9/14'].filter(Boolean).join('、')], [null, `${fmt(q.area_ha)} 公頃`], [null, '點一下在下方地圖標出位置']])).on('mouseleave', tp.hide).on('click', () => { persistHi = persistHi === code ? null : code; drawPersist(); });
+        .on('mousemove', ev => tp.show(ev, [['t', core ? '三段期間都有變動（持續活動區）' : '只在：' + [q.in_p1 && PN[0], q.in_p2 && PN[1], q.in_p3 && PN[2]].filter(Boolean).join('、')], [null, `${fmt(q.area_ha)} 公頃`], [null, '點一下在下方地圖標出位置']])).on('mouseleave', tp.hide).on('click', () => { persistHi = persistHi === code ? null : code; drawPersist(); });
       g.transition().delay(d ? 500 : 0).duration(d).attr('opacity', 1);
     });
   }
@@ -366,7 +368,8 @@ dash.calc('funnel', {
       g.append('text').attr('x', 14).attr('y', 24).attr('fill', '#fff').style('font-size', 'var(--ms-fs-chart-lg)').style('font-weight', 800).text(`${KT[kind][0]}：${KT[kind][1]}`);
       g.append('text').attr('x', 14).attr('y', 55).attr('fill', '#fff').style('font-size', '1.35rem').style('font-weight', 800).style('font-variant-numeric', 'tabular-nums').text(`合計 ${fmt(total)} 萬 m³`);
       const ins = g.append('text').attr('x', 14).attr('y', 80).attr('fill', '#fff').style('font-size', 'var(--ms-fs-chart)').style('font-weight', 700);
-      fit(ins, pw - 24, [`${byZone[0][0]} 占 ${d3.format('.0%')(byZone[0][1] / total)}；最多在 ${PSHORT[topLeaf.period]}（${topLeaf.zone.charAt(0)} 區 ${fmt(Number(topLeaf.volume))} 萬）`, `${byZone[0][0]} 占 ${d3.format('.0%')(byZone[0][1] / total)}`]);
+      const top1 = `${byZone[0][0]} 占 ${d3.format('.0%')(byZone[0][1] / total)}`, tail = `（${topLeaf.zone.charAt(0)} 區 ${fmt(Number(topLeaf.volume))} 萬）`;
+      fit(ins, pw - 24, [`${top1}；最多在 ${PFULL[topLeaf.period]}${tail}`, `${top1}；最多在 ${PSHORT[topLeaf.period]}${tail}`, top1]);
       const hier = { children: byZone.map(([z]) => ({ name: z, children: kr.filter(r => r.zone === z).map(r => ({ name: r.period, zone: z, kind, value: Number(r.volume) })) })) };
       const root = d3.hierarchy(hier).sum(d => d.value || 0).sort((a, b) => b.value - a.value);
       d3.treemap().size([pw, th - head - 6]).paddingTop(d => d.depth === 1 ? 32 : 0).paddingInner(3).paddingOuter(0).round(true)(root);
@@ -385,12 +388,12 @@ dash.calc('funnel', {
         lg.append('rect').attr('x', lf.x0).attr('y', lf.y0).attr('width', w).attr('height', h).attr('rx', 3).attr('fill', d3.interpolateRgb(panel, zc[r.zone])(tn)).attr('stroke', zc[r.zone]).attr('stroke-opacity', .6);
         const fg = light ? 'var(--color-fg)' : '#fff';
         if (w > 92 && h > 46) {
-          lg.append('text').attr('x', lf.x0 + 7).attr('y', lf.y0 + 19).attr('fill', fg).style('font-size', 'var(--ms-fs-chart)').style('font-weight', 800).text(PSHORT[r.name]);
+          const pl = lg.append('text').attr('x', lf.x0 + 7).attr('y', lf.y0 + 19).attr('fill', fg).style('font-size', 'var(--ms-fs-chart)').style('font-weight', 800); fit(pl, w - 12, [PFULL[r.name], PSHORT[r.name]]);
           lg.append('text').attr('x', lf.x0 + 7).attr('y', lf.y0 + 42).attr('fill', fg).style('font-size', w > 130 && h > 70 ? '1.4rem' : 'var(--ms-fs-chart-lg)').style('font-weight', 800).style('font-variant-numeric', 'tabular-nums').text(fmt(r.value));
         } else if (w > 36 && h > 22) {
           lg.append('text').attr('x', lf.x0 + w / 2).attr('y', lf.y0 + h / 2).attr('dy', '.35em').attr('text-anchor', 'middle').attr('fill', fg).style('font-size', '.8rem').style('font-weight', 800).text(fmt(r.value));
         }
-        lg.on('mousemove', ev => tp.show(ev, [['t', `${kind}｜${r.zone}`], [null, `期間 ${PSHORT[r.name]}（${r.name.replace('→', ' → ')}）`], [null, `${fmt(r.value)} 萬 m³，占${kind}合計 ${d3.format('.1%')(r.value / total)}`]])).on('mouseleave', tp.hide)
+        lg.on('mousemove', ev => tp.show(ev, [['t', `${kind}｜${r.zone}`], [null, `期間 ${PFULL[r.name]}`], [null, `${fmt(r.value)} 萬 m³，占${kind}合計 ${d3.format('.1%')(r.value / total)}`]])).on('mouseleave', tp.hide)
           .on('click', () => { const k = Object.keys(PNAME).find(q => PNAME[q] === r.name); setPeriod(k, ZK_REV[r.zone]); document.getElementById('map-card').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); });
       });
       g.transition().delay(ki * 200).duration(dly).attr('opacity', 1);
@@ -401,7 +404,7 @@ dash.calc('funnel', {
     Object.keys(ZK).forEach(k => add(ZK[k], zc[ZK[k]]));
     const l2 = document.createElement('b'); l2.textContent = '　小格的深淺 = 期間：'; l2.style.marginLeft = '1rem'; lg.appendChild(l2);
     const gray = rgb('var(--color-fg)', '#444');
-    [['最深　9/25–10/13', 1], ['中等　10/13–3/14', .72], ['最淺　3/14–9/14', .46]].forEach(([n, tt]) => add(n, d3.interpolateRgb(panel, gray)(tt * .75), gray));
+    [['最深　2025/9/25–10/13', 1], ['中等　2025/10/13–2026/3/14', .72], ['最淺　2026/3/14–9/14', .46]].forEach(([n, tt]) => add(n, d3.interpolateRgb(panel, gray)(tt * .75), gray));
   }
 
   // ---------- FUNNEL ----------
