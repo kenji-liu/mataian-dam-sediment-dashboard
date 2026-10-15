@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>馬太鞍溪堰塞湖土砂變遷分析</title>
+<meta name="description" content="以五期 1 m DEM 與空拍正射影像分析馬太鞍溪堰塞湖潰決後（2025/9/25–2026/9/14）的土砂沖淤、去向與河道縱斷面變化。">
+<style>
+:root { --color-fg:#1b1f23; --color-fg-muted:#5c6670; --color-bg:#faf9f7; --color-panel:#ffffff; --color-border-line:#dcdfe3; --color-ok:#157a45; --color-bad:#c0392b; --color-warn:#9a6700;
+  --cds-radius:10px; --cds-pad-xs:4px; --cds-pad-sm:8px; --cds-pad-md:12px; --cds-pad-lg:16px; --cds-gap-xs:4px; --cds-gap-sm:8px; --cds-gap-md:12px; --cds-gap-lg:20px; --cds-gap-xl:32px;
+  --cds-font-size-caption:12px; --cds-font-size-body:14px; --cds-font-size-heading:16px; --cds-font-size-title:24px; --cds-dur-slow:300ms; --cds-ease-out:cubic-bezier(.2,.7,.2,1);
+  --cds-chart-muted:#9aa3ad; --cds-chart-status-critical:#d93a35; --cds-chart-grid:#e8eaed; --cds-chart-axis:#9aa3ad; --cds-chart-reference:#8a929b;
+  --cds-surface-popover:#fff; --cds-border:#cfd4d9; --cds-shadow-popover:0 6px 20px rgba(0,0,0,.18); --cds-text-secondary:#4a535c; --cds-font-weight-medium:600; }
+@media (prefers-color-scheme: dark) { :root { --color-fg:#e9ecef; --color-fg-muted:#a3adb8; --color-bg:#14171a; --color-panel:#1d2126; --color-border-line:#333a42; --color-ok:#4cc38a; --color-bad:#ff7a70; --color-warn:#f0b955;
+  --cds-chart-muted:#7d8791; --cds-chart-status-critical:#ff5c55; --cds-chart-grid:#2b3138; --cds-chart-axis:#5d6872; --cds-chart-reference:#7c8791; --cds-surface-popover:#262b31; --cds-border:#3b434c; --cds-text-secondary:#b8c1ca; } }
+html, body { margin: 0; background: var(--color-bg); color: var(--color-fg); }
+body { font-family: "Microsoft YaHei", "微軟雅黑", "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif; }
+#dash-root { --dash-gutter: clamp(16px, 4vw, 48px); padding: var(--dash-gutter); box-sizing: border-box; }
+#boot-status { text-align: center; padding: 1rem; color: var(--color-fg-muted); font-size: 14px; }
+.dash-skeleton { background: linear-gradient(90deg, rgba(128,128,128,.10), rgba(128,128,128,.22), rgba(128,128,128,.10)); background-size: 200% 100%; border-radius: 8px; color: transparent; }
+@media (prefers-reduced-motion: no-preference) { .dash-skeleton { animation: sk 1.4s ease-in-out infinite; } @keyframes sk { from { background-position: 200% 0; } to { background-position: -200% 0; } } }
+
+
+#dash-root { --dash-gutter: clamp(16px, 4vw, 48px); }
+.ms { --ms-font: "Microsoft YaHei", "微軟雅黑", "Microsoft JhengHei", sans-serif; --ms-fs-title: clamp(1.9rem, 3.4vw, 2.7rem); --ms-fs-h2: clamp(1.35rem, 2.3vw, 1.75rem); --ms-fs-h3: 1.22rem; --ms-fs-body: 1.08rem; --ms-fs-cap: .95rem; --ms-fs-chart: .95rem; --ms-fs-chart-lg: 1.2rem; --ms-fs-kpi: clamp(2rem, 3.2vw, 2.6rem); font-family: var(--ms-font); font-weight: 500; color: var(--color-fg); max-width: 1180px; margin-inline: auto; }
+.ms-head h1 { font-family: var(--ms-font); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0 0 var(--cds-gap-xs); }
+.ms-take { color: var(--color-fg-muted); font-size: var(--cds-font-size-body); margin: 0 0 var(--cds-gap-lg); max-width: 60rem; }
+.ms-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: var(--cds-gap-md); margin-bottom: var(--cds-gap-xl); }
+.ms-kpi { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); }
+.ms-kpi .lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.ms-kpi .num { font-family: var(--ms-font); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; margin: var(--cds-gap-xs) 0; min-height: 1.3em; }
+.ms-kpi .sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.ms-kpi .bad { color: var(--color-bad); } .ms-kpi .ok { color: var(--color-ok); } .ms-kpi .warn { color: var(--color-warn); }
+.ms-story { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: var(--cds-gap-xl); }
+.ms-steps { padding-bottom: 40vh; }
+.ms-step { min-height: 75vh; display: flex; flex-direction: column; justify-content: center; opacity: .35; transition: opacity var(--cds-dur-slow) var(--cds-ease-out); }
+.ms-step.on { opacity: 1; }
+.ms-step .tag { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); letter-spacing: .04em; }
+.ms-step h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: var(--cds-gap-xs) 0 var(--cds-gap-sm); }
+.ms-step p { font-size: var(--cds-font-size-body); line-height: 1.7; margin: 0 0 var(--cds-gap-sm); }
+.ms .ms-step b, .ms .ms-kpi b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.ms-sticky { position: sticky; top: var(--cds-gap-lg); align-self: start; }
+.ms-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); }
+.ms-card h3 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.ms-card .note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: var(--cds-gap-xs) 0 var(--cds-gap-md); min-height: 1.2em; }
+.ms-chart { position: relative; min-height: 380px; }
+.ms-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: var(--cds-gap-sm); min-height: 1.2em; }
+.ms-legend i { display: inline-block; width: .7rem; height: .7rem; border-radius: 2px; margin-right: .35rem; vertical-align: -1px; }
+.ms-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); opacity: 0; white-space: nowrap; z-index: 2; }
+.ms-tip .t { color: var(--cds-text-secondary); margin-bottom: 2px; }
+.ms-tip .sw { display: inline-block; width: .55rem; height: .55rem; border-radius: 2px; margin-right: .3rem; }
+.ms-foot { margin-top: var(--cds-gap-xl); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.7; border-top: 1px solid var(--color-border-line); padding-top: var(--cds-gap-md); }
+.ms-chart text { font-family: var(--ms-font); }
+.sp { margin-top: var(--cds-gap-xl); }
+.sp-h2 { font-family: var(--ms-font); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0 0 var(--cds-gap-xs); }
+.sp-lead { color: var(--color-fg-muted); margin: 0 0 var(--cds-gap-lg); }
+.sp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: var(--cds-gap-md); margin-top: var(--cds-gap-md); }
+.sp-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); position: relative; }
+.sp-card h3 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.sp-card .note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: var(--cds-gap-xs) 0 var(--cds-gap-md); }
+.sp-box { position: relative; min-height: 320px; }
+.sp-map { min-height: 300px; }
+.sp-map canvas { display: block; width: 100%; border-radius: calc(var(--cds-radius) / 2); cursor: crosshair; }
+.sp-map svg { position: absolute; inset: 0; pointer-events: none; }
+.sp-bar { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; justify-content: space-between; margin-bottom: var(--cds-gap-sm); }
+.sp-seg { display: inline-flex; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; }
+.sp-seg button { font: inherit; font-size: var(--cds-font-size-caption); background: transparent; color: var(--color-fg-muted); border: 0; padding: var(--cds-pad-xs) var(--cds-pad-sm); cursor: pointer; }
+.sp-seg button + button { border-left: 1px solid var(--color-border-line); }
+.sp-seg button[aria-pressed=true] { background: var(--color-bg); color: var(--color-fg); font-weight: 600; }
+.sp-ramp { display: flex; align-items: center; gap: .5rem; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.sp-ramp canvas { width: 140px; height: 10px; border-radius: 3px; }
+.sp-box text { font-family: var(--ms-font); }
+@media (prefers-reduced-motion: no-preference) { .sp-card { animation: ms-rise var(--cds-dur-slow) var(--cds-ease-out) both; } }
+/* typography + emphasis overrides */
+.ms .ms-head h1 { font-size: var(--ms-fs-title); font-weight: 800; letter-spacing: .02em; }
+.ms .ms-take { font-size: var(--ms-fs-body); font-weight: 700; color: var(--color-fg); line-height: 1.7; }
+.ms .ms-kpi { border-top: 4px solid var(--color-border-line); }
+.ms .ms-kpi .lbl { font-size: var(--ms-fs-cap); font-weight: 700; }
+.ms .ms-kpi .num { font-size: var(--ms-fs-kpi); font-weight: 800; }
+.ms .ms-kpi .sub { font-size: var(--ms-fs-cap); font-weight: 600; }
+.ms .ms-step .tag { font-size: var(--ms-fs-cap); font-weight: 800; letter-spacing: .08em; }
+.ms .ms-step h2 { font-size: var(--ms-fs-h2); font-weight: 800; line-height: 1.35; }
+.ms .ms-step p { font-size: var(--ms-fs-body); font-weight: 500; line-height: 1.85; }
+.ms .ms-step b, .ms .ms-kpi b { font-weight: 800; font-size: 1.1em; }
+.ms .ms-card h3, .ms .sp-card h3 { font-size: var(--ms-fs-h3); font-weight: 800; }
+.ms .ms-card .note, .ms .sp-card .note { font-size: var(--ms-fs-cap); font-weight: 600; }
+.ms .sp-h2 { font-size: var(--ms-fs-title); font-weight: 800; }
+.ms .sp-lead { font-size: var(--ms-fs-body); font-weight: 600; line-height: 1.7; }
+.ms .ms-legend, .ms .sp-ramp { font-size: var(--ms-fs-cap); font-weight: 700; }
+.ms .ms-legend i { width: .95rem; height: .95rem; }
+.ms .sp-ramp canvas { width: 180px; height: 12px; }
+.ms .sp-seg button { font-size: var(--ms-fs-cap); font-weight: 700; padding: var(--cds-pad-sm) var(--cds-pad-md); }
+.ms .ms-tip { font-size: var(--ms-fs-cap); font-weight: 600; line-height: 1.5; }
+.ms .ms-tip .t { font-weight: 800; }
+.ms .ms-foot { font-size: var(--ms-fs-cap); font-weight: 500; }
+.ms svg text { font-family: var(--ms-font); font-weight: 700; }
+.ms .ms-chart { min-height: 470px; }
+@media (max-width: 760px) { .ms .ms-chart { min-height: 320px; } }
+/* locator + chips */
+.ms .zchip { --zc: var(--color-border-line); display: inline-block; font-size: var(--ms-fs-cap); font-weight: 800; padding: .1rem .6rem; border-radius: 999px; border-left: 7px solid var(--zc); background: color-mix(in srgb, var(--zc) 16%, transparent); color: var(--color-fg); }
+.ms .ms-kpi .lbl:first-child { margin-bottom: var(--cds-gap-xs); }
+.ms .ms-kpi .num { white-space: nowrap; font-size: clamp(1.7rem, 2.6vw, 2.2rem); }
+.ms .ms-kpi .num .u { font-size: .48em; font-weight: 800; margin-left: .3em; color: var(--color-fg-muted); }
+.ms .lc { margin-bottom: var(--cds-gap-xl); }
+.ms .lc-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--cds-gap-md); align-items: start; }
+.ms .lc-mapcard { padding: var(--cds-pad-sm); }
+.ms .lc-map { min-height: 280px; }
+.ms .lc-list { display: grid; gap: var(--cds-gap-sm); }
+.ms .lc-item { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); transition: box-shadow var(--cds-dur-slow) var(--cds-ease-out), transform var(--cds-dur-slow) var(--cds-ease-out); outline: none; }
+.ms .lc-item.on, .ms .lc-item:focus-visible { box-shadow: 0 0 0 2px var(--color-fg); transform: translateX(-3px); }
+.ms .lc-top { display: flex; align-items: center; gap: var(--cds-gap-sm); }
+.ms .lc-name { font-size: var(--ms-fs-h3); font-weight: 800; }
+.ms .lc-role { font-size: var(--ms-fs-body); font-weight: 700; margin: var(--cds-gap-xs) 0; }
+.ms .lc-where { font-size: var(--ms-fs-cap); font-weight: 500; color: var(--color-fg-muted); line-height: 1.7; }
+.ms .lc-stats { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-lg); margin: var(--cds-gap-sm) 0 0; }
+.ms .lc-stats dt { font-size: var(--ms-fs-cap); font-weight: 600; color: var(--color-fg-muted); }
+.ms .lc-stats dd { margin: 0; font-size: var(--ms-fs-body); font-weight: 800; font-variant-numeric: tabular-nums; }
+.ms .lc-src { font-size: var(--ms-fs-cap); color: var(--color-fg-muted); margin: var(--cds-gap-sm) 0 0; line-height: 1.7; }
+@media (max-width: 900px) { .ms .lc-grid { grid-template-columns: 1fr; } }
+/* tables + venn layout */
+.ms .vn-wrap { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--cds-gap-lg); align-items: center; }
+.ms .tm-wrap { overflow-x: auto; }
+.ms .tm-table { width: 100%; border-collapse: collapse; font-size: var(--ms-fs-cap); font-variant-numeric: tabular-nums; }
+.ms .tm-table th { text-align: right; font-weight: 800; padding: .5rem .6rem; border-bottom: 2px solid var(--color-border-line); white-space: nowrap; color: var(--color-fg-muted); }
+.ms .tm-table td { text-align: right; font-weight: 700; padding: .5rem .6rem; border-bottom: 1px solid var(--color-border-line); }
+.ms .tm-table th:first-child, .ms .tm-table td:first-child { text-align: left; font-weight: 800; color: var(--color-fg); }
+.ms .tm-table td.neg { color: var(--color-bad); } .ms .tm-table td.pos { color: var(--color-ok); }
+.ms #tree-legend { align-items: center; margin-top: var(--cds-gap-sm); }
+.ms #tree-legend i { width: 1.4rem; height: .9rem; border-radius: 3px; }
+@media (max-width: 900px) { .ms .vn-wrap { grid-template-columns: 1fr; } }
+/* locator: big map, cards below */
+.ms .lc-stack { display: block; }
+.ms .lc-stack .lc-mapcard { padding: var(--cds-pad-md); }
+.ms .lc-stack .lc-map { min-height: 420px; }
+.ms .lc-stack .lc-list { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15.5rem), 1fr)); margin-top: var(--cds-gap-md); gap: var(--cds-gap-md); }
+.ms .lc-stack .lc-item.on, .ms .lc-stack .lc-item:focus-visible { transform: translateY(-3px); }
+.ms .tm-table th, .ms .tm-table td { padding-left: .5rem; padding-right: .5rem; }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+.ms-fail { display: flex; align-items: center; justify-content: center; gap: .4rem; min-height: 380px; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.ms-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+@media (prefers-reduced-motion: no-preference) {
+  .ms-head { animation: ms-rise var(--cds-dur-slow) var(--cds-ease-out) both; }
+  .ms-kpi { animation: ms-rise var(--cds-dur-slow) var(--cds-ease-out) both; }
+  .ms-kpi:nth-child(2) { animation-delay: 80ms; } .ms-kpi:nth-child(3) { animation-delay: 160ms; } .ms-kpi:nth-child(4) { animation-delay: 240ms; }
+  @keyframes ms-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+}
+@media (max-width: 760px) {
+  .ms-story { grid-template-columns: 1fr; }
+  .ms-sticky { order: -1; top: 0; z-index: 1; background: var(--color-bg); padding-bottom: var(--cds-gap-sm); }
+  .ms-chart { min-height: 260px; }
+  .ms-step { min-height: 60vh; }
+}
+
+/* ===== lively theme ===== */
+.ms .tm-table tr.base td { background: color-mix(in srgb, #4f46e5 12%, transparent); font-weight: 800; }
+.ms .ms-story { display: block; }
+.ms { --ink: var(--color-fg); }
+.ms .ms-hero { position: relative; overflow: hidden; border-radius: 26px; color: #fff; min-height: 360px; display: flex; align-items: flex-end; background: linear-gradient(120deg, #0b2a3d, #14506b 55%, #1f7a6b); box-shadow: 0 18px 40px -18px rgba(8, 40, 60, .65); }
+.ms .ms-hero-bg { position: absolute; inset: -4%; background-size: cover; background-position: center 40%; }
+.ms .ms-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, rgba(8,22,38,.82) 0%, rgba(8,32,48,.5) 50%, rgba(8,22,38,.12) 100%); }
+.ms .ms-hero-in { position: relative; z-index: 1; padding: clamp(22px, 4vw, 52px); padding-bottom: clamp(48px, 6vw, 72px); max-width: 62rem; }
+.ms .ms-eyebrow { font-size: var(--ms-fs-cap); font-weight: 800; letter-spacing: .12em; color: #ffd60a; margin-bottom: var(--cds-gap-sm); }
+.ms .ms-hero h1 { color: #fff; font-size: clamp(2.1rem, 4.6vw, 3.4rem); line-height: 1.15; text-shadow: 0 3px 18px rgba(0,0,0,.5); margin: 0 0 var(--cds-gap-md); }
+.ms .ms-hero .ms-take { color: #f2f6f8; font-size: clamp(1.05rem, 1.6vw, 1.3rem); max-width: 56rem; margin: 0 0 var(--cds-gap-md); text-shadow: 0 1px 8px rgba(0,0,0,.45); }
+.ms .ms-chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.ms .ms-chips span { background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35); backdrop-filter: blur(6px); border-radius: 999px; padding: .3rem .9rem; font-size: var(--ms-fs-cap); font-weight: 700; }
+.ms .ms-wave { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: 38px; z-index: 1; }
+.ms .ms-wave path { fill: var(--color-bg); }
+.ms .ms-band { --band: #2e6fd8; position: relative; overflow: hidden; border-radius: 24px; padding: clamp(18px, 3vw, 34px); margin: clamp(22px, 3vw, 34px) 0; background: linear-gradient(160deg, color-mix(in srgb, var(--band) 13%, var(--color-bg)), color-mix(in srgb, var(--band) 4%, var(--color-bg)) 60%); border: 1px solid color-mix(in srgb, var(--band) 26%, transparent); box-shadow: 0 10px 30px -22px color-mix(in srgb, var(--band) 80%, #000); }
+.ms .ms-band::before { content: ""; position: absolute; right: -60px; top: -60px; width: 380px; height: 380px; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--band) 30%, transparent), transparent 68%); pointer-events: none; }
+.ms .ms-band::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 7px; background: var(--band); }
+.ms .ms-band > * { position: relative; }
+.ms .sp-h2 .ico { margin-right: .45rem; }
+.ms .sp-h2, .ms .ms-chap h2 { color: color-mix(in srgb, var(--band) 70%, var(--color-fg)); }
+.ms .ms-kpis { margin-top: -34px; position: relative; z-index: 2; }
+.ms .ms-kpi { border: 0; border-top: 6px solid var(--k, #2e6fd8); background: linear-gradient(180deg, color-mix(in srgb, var(--k, #2e6fd8) 9%, var(--color-panel)), var(--color-panel) 55%); box-shadow: 0 14px 30px -20px color-mix(in srgb, var(--k, #2e6fd8) 85%, #000); transition: transform var(--cds-dur-slow) var(--cds-ease-out), box-shadow var(--cds-dur-slow) var(--cds-ease-out); }
+.ms .ms-kpi:hover { transform: translateY(-5px); }
+.ms .ms-kpi:nth-child(1) { --k: #ef4444; } .ms .ms-kpi:nth-child(2) { --k: #2e6fd8; } .ms .ms-kpi:nth-child(3) { --k: #e8a317; } .ms .ms-kpi:nth-child(4) { --k: #1fa774; }
+.ms .ms-chap-head { display: flex; align-items: center; gap: var(--cds-gap-md); margin-bottom: var(--cds-gap-sm); }
+.ms .ms-badge { flex: none; width: 3.4rem; height: 3.4rem; border-radius: 50%; display: grid; place-items: center; font-size: 1.7rem; background: color-mix(in srgb, var(--band) 20%, var(--color-panel)); border: 3px solid var(--band); box-shadow: 0 6px 16px -8px var(--band); }
+.ms .ms-chap-head .tag { color: var(--band); }
+.ms .ms-chap-body { max-width: 66rem; margin-bottom: var(--cds-gap-md); }
+.ms .ms-chap-body p { font-size: var(--ms-fs-body); line-height: 1.85; margin: 0 0 var(--cds-gap-sm); font-weight: 500; }
+.ms .ms-chap-body b { font-weight: 800; font-size: 1.1em; }
+.ms .ms-chap .ms-card, .ms .sp-card { background: var(--color-panel); border: 1px solid color-mix(in srgb, var(--band, #888) 22%, var(--color-border-line)); border-radius: 18px; box-shadow: 0 10px 26px -20px rgba(0,0,0,.5); }
+.ms .ms-chap .ms-chart { min-height: 380px; }
+.ms .sp-card { transition: transform var(--cds-dur-slow) var(--cds-ease-out); }
+.ms .sp-card h3 { padding-left: .7rem; border-left: 5px solid var(--band, #888); }
+.ms .reveal.pre { opacity: 0; transform: translateY(24px); }
+.ms .reveal { transition: opacity .8s var(--cds-ease-out), transform .8s var(--cds-ease-out); }
+.ms .ms-foot { border-radius: 18px; background: color-mix(in srgb, #888 8%, var(--color-bg)); padding: var(--cds-pad-lg); border: 1px solid var(--color-border-line); }
+.ms .pm-title { font-size: var(--ms-fs-h3); font-weight: 800; margin: var(--cds-gap-lg) 0 var(--cds-gap-xs); }
+.ms .pm { min-height: 300px; border-radius: 12px; overflow: hidden; margin-top: var(--cds-gap-sm); }
+.ms .pm svg { position: static; display: block; }
+.ms .pm-legend { gap: .5rem; margin-top: var(--cds-gap-sm); }
+.ms .pm-chip { font: inherit; font-size: var(--ms-fs-cap); font-weight: 800; color: var(--color-fg); background: var(--color-panel); border: 2px solid var(--color-border-line); border-radius: 999px; padding: .25rem .8rem; cursor: pointer; display: inline-flex; align-items: center; gap: .45rem; }
+.ms .pm-chip[aria-pressed=true] { border-color: var(--color-fg); box-shadow: 0 0 0 2px var(--color-fg); }
+.ms .pm-chip i { width: 1rem; height: 1rem; border-radius: 50%; display: inline-block; margin: 0; }
+.ms .swatch { display: inline-block; width: .9rem; height: .9rem; border-radius: 50%; margin-right: .5rem; vertical-align: -1px; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
+@media (prefers-reduced-motion: no-preference) {
+  .ms .ms-hero-bg { animation: ms-kb 26s ease-in-out infinite alternate; }
+  @keyframes ms-kb { from { transform: scale(1) translate(0, 0); } to { transform: scale(1.1) translate(-2%, -1.5%); } }
+}
+@media (max-width: 760px) { .ms .ms-kpis { margin-top: -22px; } .ms .ms-hero { min-height: 300px; } }
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+</head>
+<body>
+<div id="dash-root">
+<div id="boot-status">載入中…</div>
+<div class="ms">
+  <header class="ms-hero" id="hero">
+    <div class="ms-hero-bg"></div>
+    <div class="ms-hero-in">
+      <div class="ms-eyebrow">馬太鞍溪國有林集水區整體調查暨治理規劃・土砂變遷分析</div>
+      <h1>馬太鞍溪堰塞湖土砂變遷分析</h1>
+      <p class="ms-take" id="takeaway" data-source="zones">—</p>
+      <div class="ms-chips"><span>📅 2025/9/25 → 2026/9/14</span><span>🛰️ 五期 1 m DEM ＋ 空拍正射影像</span><span>📐 偵測門檻 1 m</span><span>🗺️ TWD97 / TM2</span></div>
+    </div>
+    <svg class="ms-wave" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0,30 C150,60 300,0 450,30 C600,60 750,0 900,30 C1050,60 1150,10 1200,30 L1200,60 L0,60Z"/></svg>
+  </header>
+
+  <section class="ms-kpis reveal" id="kpis">
+    <div class="ms-kpi">
+      <div class="lbl"><span class="zchip" data-z="B">B 殘壩區</span></div><div class="lbl">潰決後至 2026/9 土砂變化</div>
+      <div class="num dash-skeleton"><span data-source="zones" data-field="dem_since_breach" data-where="zone=B 殘壩區" id="k-b">—</span><span class="u">萬 m³</span></div>
+      <div class="sub">A 崩積區：<span data-source="zones" data-field="dem_since_breach" data-where="zone=A 崩積區" id="k-a">—</span> 萬 m³</div>
+    </div>
+    <div class="ms-kpi">
+      <div class="lbl"><span class="zchip" data-z="C">C 治理界點以上河道</span></div><div class="lbl">潰決後至 2026/9 淤積量</div>
+      <div class="num dash-skeleton"><span data-source="zones" data-field="dem_since_breach" data-where="zone=C 治理界點以上河道" id="k-c">—</span><span class="u">萬 m³</span></div>
+      <div class="sub">占 A+B 流失量的 <b data-source="budget" data-field="share" data-where="part=留在 C 區河道">—</b></div>
+    </div>
+    <div class="ms-kpi">
+      <div class="lbl"><span class="zchip" data-z="B">B 殘壩區</span></div><div class="lbl">每日流失速率（最近一期）</div>
+      <div class="num dash-skeleton"><span data-source="b_rate" data-field="rate" data-where="period=260314→260914" id="k-r">—</span><span class="u">萬 m³/天</span></div>
+      <div class="sub">潰決後第一期：<span data-source="b_rate" data-field="rate" data-where="period=250925→251013" id="k-r0">—</span> 萬 m³/天</div>
+    </div>
+    <div class="ms-kpi">
+      <div class="lbl"><span class="zchip" data-z="D">A+B → C、D</span></div><div class="lbl">輸出到更下游的比例（估）</div>
+      <div class="num dash-skeleton"><span data-source="budget" data-field="share" data-where="part=輸出至花蓮溪或出海" id="k-out">—</span></div>
+      <div class="sub">A+B 流失量中未留在 C、D 河床的部分</div>
+    </div>
+  </section>
+
+
+  <section class="lc ms-band reveal" id="locator" style="--band:#1fa774">
+    <h2 class="sp-h2"><span class="ico">🛰️</span>區位總覽</h2>
+    <p class="sp-lead">本報告把研究範圍依水流方向分成四區，由上游崩塌源頭（A）、殘壩（B）、山區河道（C）到治理界點下游河床（D）。滑鼠移到地圖或下方說明卡，可以對照位置。</p>
+    <div class="lc-stack">
+      <div class="sp-card lc-mapcard"><div class="sp-bar" style="margin: var(--cds-gap-xs) var(--cds-gap-xs) var(--cds-gap-sm)"><div class="sp-seg" id="lc-seg" role="group" aria-label="底圖"><button data-l="sat" aria-pressed="true">衛星影像</button><button data-l="terrain" aria-pressed="false">地形陰影</button></div><div class="sp-ramp">黃色虛線 = 整體分析範圍；彩色實線 = A～D 分區界線</div></div><div class="sp-box lc-map dash-skeleton" id="lcmap" data-source="locator geo zoneinfo satellite"></div></div>
+      <div class="lc-list">
+      <article class="lc-item dash-skeleton" data-z="A" tabindex="0">
+        <div class="lc-top"><span class="zchip" data-z="A">A</span><b class="lc-name" data-source="zoneinfo" data-field="name" data-where="zone=A">—</b></div>
+        <div class="lc-role" data-source="zoneinfo" data-field="role" data-where="zone=A">—</div>
+        <div class="lc-where" data-source="zoneinfo" data-field="where" data-where="zone=A">—</div>
+        <dl class="lc-stats">
+          <div><dt>面積</dt><dd><span data-source="zoneinfo" data-field="area_ha" data-where="zone=A">—</span> 公頃</dd></div>
+          <div><dt>高程</dt><dd><span data-source="zoneinfo" data-field="elev_min" data-where="zone=A">—</span>–<span data-source="zoneinfo" data-field="elev_max" data-where="zone=A">—</span> m</dd></div>
+          
+        </dl>
+      </article>
+      <article class="lc-item dash-skeleton" data-z="B" tabindex="0">
+        <div class="lc-top"><span class="zchip" data-z="B">B</span><b class="lc-name" data-source="zoneinfo" data-field="name" data-where="zone=B">—</b></div>
+        <div class="lc-role" data-source="zoneinfo" data-field="role" data-where="zone=B">—</div>
+        <div class="lc-where" data-source="zoneinfo" data-field="where" data-where="zone=B">—</div>
+        <dl class="lc-stats">
+          <div><dt>面積</dt><dd><span data-source="zoneinfo" data-field="area_ha" data-where="zone=B">—</span> 公頃</dd></div>
+          <div><dt>高程</dt><dd><span data-source="zoneinfo" data-field="elev_min" data-where="zone=B">—</span>–<span data-source="zoneinfo" data-field="elev_max" data-where="zone=B">—</span> m</dd></div>
+          <div><dt>沿河道距離</dt><dd><span data-source="zoneinfo" data-field="chan_from_km" data-where="zone=B">—</span>–<span data-source="zoneinfo" data-field="chan_to_km" data-where="zone=B">—</span> km</dd></div>
+        </dl>
+      </article>
+      <article class="lc-item dash-skeleton" data-z="C" tabindex="0">
+        <div class="lc-top"><span class="zchip" data-z="C">C</span><b class="lc-name" data-source="zoneinfo" data-field="name" data-where="zone=C">—</b></div>
+        <div class="lc-role" data-source="zoneinfo" data-field="role" data-where="zone=C">—</div>
+        <div class="lc-where" data-source="zoneinfo" data-field="where" data-where="zone=C">—</div>
+        <dl class="lc-stats">
+          <div><dt>面積</dt><dd><span data-source="zoneinfo" data-field="area_ha" data-where="zone=C">—</span> 公頃</dd></div>
+          <div><dt>高程</dt><dd><span data-source="zoneinfo" data-field="elev_min" data-where="zone=C">—</span>–<span data-source="zoneinfo" data-field="elev_max" data-where="zone=C">—</span> m</dd></div>
+          <div><dt>沿河道距離</dt><dd><span data-source="zoneinfo" data-field="chan_from_km" data-where="zone=C">—</span>–<span data-source="zoneinfo" data-field="chan_to_km" data-where="zone=C">—</span> km</dd></div>
+        </dl>
+      </article>
+      <article class="lc-item dash-skeleton" data-z="D" tabindex="0">
+        <div class="lc-top"><span class="zchip" data-z="D">D</span><b class="lc-name" data-source="zoneinfo" data-field="name" data-where="zone=D">—</b></div>
+        <div class="lc-role" data-source="zoneinfo" data-field="role" data-where="zone=D">—</div>
+        <div class="lc-where" data-source="zoneinfo" data-field="where" data-where="zone=D">—</div>
+        <dl class="lc-stats">
+          <div><dt>面積</dt><dd><span data-source="zoneinfo" data-field="area_ha" data-where="zone=D">—</span> 公頃</dd></div>
+          <div><dt>高程</dt><dd><span data-source="zoneinfo" data-field="elev_min" data-where="zone=D">—</span>–<span data-source="zoneinfo" data-field="elev_max" data-where="zone=D">—</span> m</dd></div>
+          <div><dt>沿河道距離</dt><dd><span data-source="zoneinfo" data-field="chan_from_km" data-where="zone=D">—</span>–<span data-source="zoneinfo" data-field="chan_to_km" data-where="zone=D">—</span> km</dd></div>
+        </dl>
+      </article>
+      </div>
+    </div>
+    <p class="lc-src">座標為 TWD97 / TM2（EPSG:3826）；衛星影像為 2025/9/27 與 11/16 兩期空拍正射影像拼接；地形陰影底圖為 2026/9/14 DEM。A、B、C 分區為目視劃定的近似範圍（非官方分區）；D 區依衛星影像上的灰白色礫石河道範圍劃定（x 約 289–299 km，不含兩側農地與聚落）。</p>
+  </section>
+
+
+
+  <div class="ms-story">
+  <section class="ms-chap ms-band reveal" id="chap-rates" data-step="rates" style="--band:#ef4444">
+    <div class="ms-chap-head">
+      <span class="ms-badge">⛏️</span>
+      <div><div class="tag">第一章 · 殘壩區</div><h2>殘壩下切變慢了，但還沒停</h2></div>
+    </div>
+    <div class="ms-chap-body"><p>殘壩區每天流失的土砂，從 9/25–10/13 的 <b data-source="b_rate" data-field="rate" data-where="period=250925→251013">—</b> 萬 m³，降到 10/13–3/14 的 <b data-source="b_rate" data-field="rate" data-where="period=251013→260314">—</b> 萬，3/14–9/14 只剩 <b data-source="b_rate" data-field="rate" data-where="period=260314→260914">—</b> 萬（這段期間含 7 月的颱風）。</p><p>殘壩區仍有 5,000 萬 m³ 以上土砂，下切動能還在。</p></div>
+    <div class="ms-card">
+      <h3 class="c-title">—</h3>
+      <div class="note c-note">—</div>
+      <div class="ms-chart dash-skeleton" id="chart-rates" data-source="b_rate periods"></div>
+      <div class="ms-legend" id="legend-rates"></div>
+    </div>
+  </section>
+  <section class="ms-chap ms-band reveal" id="chap-cumul" data-step="cumul" style="--band:#e8a317">
+    <div class="ms-chap-head">
+      <span class="ms-badge">📈</span>
+      <div><div class="tag">第二章 · 累積變化</div><h2>一邊流失、一邊淤積</h2></div>
+    </div>
+    <div class="ms-chap-body"><p>以潰決後 9/25 為零點累加：B 區一路下降到 <b data-source="cumul" data-field="B" data-where="date=2026-09-14">—</b> 萬 m³，C 區每一期都是淨淤積，累積 <b data-source="cumul" data-field="C" data-where="date=2026-09-14">—</b> 萬 m³，沒有止淤跡象。</p><p>A 區變化較小，但崩崖上緣仍有局部後退。</p></div>
+    <div class="ms-card">
+      <h3 class="c-title">—</h3>
+      <div class="note c-note">—</div>
+      <div class="ms-chart dash-skeleton" id="chart-cumul" data-source="cumul"></div>
+      <div class="ms-legend" id="legend-cumul"></div>
+    </div>
+  </section>
+  <section class="ms-chap ms-band reveal" id="chap-profile" data-step="profile" style="--band:#8b5cf6">
+    <div class="ms-chap-head">
+      <span class="ms-badge">⛰️</span>
+      <div><div class="tag">第三章 · 縱斷面</div><h2>上游下切、中游淤高</h2></div>
+    </div>
+    <div class="ms-chap-body"><p>距殘壩頂 1.4 km 處河床，0816 為 <b data-source="profile" data-field="d250816" data-where="dist_km=1.4">—</b> m，潰決後 0925 為 <b data-source="profile" data-field="d250925" data-where="dist_km=1.4">—</b> m，到 0914 降至 <b data-source="profile" data-field="d260914" data-where="dist_km=1.4">—</b> m：侵蝕遷急點持續往上游推。</p><p>距壩 10 km 處河床從 <b data-source="profile" data-field="d250925" data-where="dist_km=10">—</b> m 淤高到 <b data-source="profile" data-field="d260914" data-where="dist_km=10">—</b> m，通洪斷面持續縮小，是現階段主要風險。</p></div>
+    <div class="ms-card">
+      <h3 class="c-title">—</h3>
+      <div class="note c-note">—</div>
+      <div class="ms-chart dash-skeleton" id="chart-profile" data-source="profile"></div>
+      <div class="ms-legend" id="legend-profile"></div>
+      <h4 class="pm-title" style="margin-top: var(--cds-gap-lg)">📍 每整數公里的河床高程（m）</h4>
+      <div class="note" style="margin-top: 0">距殘壩頂的公里數與五期高程；最右欄是 2026/9/14 較 2025/9/25 的高程變化（負值＝河床下降，正值＝河床抬升）。</div>
+      <div class="tm-wrap"><table class="tm-table" id="pf-table" data-source="profile_tbl" data-row-key="km">
+        <thead><tr><th data-field="km">距殘壩頂 km</th><th data-field="d250816">8/16</th><th data-field="d250925">9/25</th><th data-field="d251013">10/13</th><th data-field="d260314">3/14</th><th data-field="d260914">9/14</th><th data-field="chg">9/14 較 9/25</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+  <section class="ms-chap ms-band reveal" id="chap-budget" data-step="budget" style="--band:#1fa774">
+    <div class="ms-chap-head">
+      <span class="ms-badge">💧</span>
+      <div><div class="tag">第四章 · 土砂收支</div><h2>大部分土砂已經離開治理範圍</h2></div>
+    </div>
+    <div class="ms-chap-body"><p>A+B 共流失 <b data-source="budget" data-field="value" data-where="part=A+B 流失">—</b> 萬 m³（其中 A 崩積區 <b data-source="budget" data-field="value" data-where="part=A 崩積區 流失">—</b> 萬、B 殘壩區 <b data-source="budget" data-field="value" data-where="part=B 殘壩區 流失">—</b> 萬）。留在 C 區河道 <b data-source="budget" data-field="share" data-where="part=留在 C 區河道">—</b>，留在治理界點下游河床 <b data-source="budget" data-field="share" data-where="part=留在界點下游河床">—</b>。</p><p>其餘約 <b data-source="budget" data-field="share" data-where="part=輸出至花蓮溪或出海">—</b> 推估已輸送到花蓮溪或出海，其中包含部分 DEM 誤差。</p></div>
+    <div class="ms-card">
+      <h3 class="c-title">—</h3>
+      <div class="note c-note">—</div>
+      <div class="ms-chart dash-skeleton" id="chart-budget" data-source="budget"></div>
+      <div class="ms-legend" id="legend-budget"></div>
+    </div>
+  </section>
+  </div>
+
+  <section class="sp ms-band" id="spatial" style="--band:#4f46e5">
+    <h2 class="sp-h2"><span class="ico">🗺️</span>空間分析</h2>
+    <p class="sp-lead">把沖淤量放回地圖上，再從強度、特徵、持續性、去向與組成五個角度拆解。點熱力圖的格子，地圖會切到該時段並標出該區。</p>
+
+    <div class="sp-card" id="map-card">
+      <div class="sp-bar">
+        <div><h3>沖淤分布地圖</h3><div class="note" id="map-note">50 m 網格平均高程變化（只顯示 |Δz| ≥ 3 m 的格子），底圖為衛星影像</div></div>
+        <div class="sp-seg" id="map-seg" role="group" aria-label="時段">
+          <button data-p="tot" aria-pressed="true">9/25–9/14 全期</button><button data-p="p1">9/25–10/13</button><button data-p="p2">10/13–3/14</button><button data-p="p3">3/14–9/14</button>
+        </div>
+      </div>
+      <div class="sp-box sp-map dash-skeleton" id="map" data-source="mapgrid geo"></div>
+      <div class="sp-bar" style="margin-top: var(--cds-gap-sm)">
+        <div class="sp-ramp"><span>沖蝕 −30 m</span><canvas id="ramp" width="180" height="12"></canvas><span>+30 m 淤積</span></div>
+        <div class="sp-ramp" id="map-zone-legend"></div>
+      </div>
+    </div>
+
+    <div class="sp-grid">
+      <div class="sp-card" id="heat-card">
+        <h3>熱力圖：各區各時段沖淤速率</h3>
+        <div class="note">淨變化 ÷ 天數 × 30，萬 m³/月；紅為流失、藍為淤積</div>
+        <div class="sp-box dash-skeleton" id="heat" data-source="heat"></div>
+      </div>
+      <div class="sp-card" id="radar-card">
+        <h3>雷達圖：四區沖淤特徵</h3>
+        <div class="note">潰決後至今；各軸以四區最大值為 100%</div>
+        <div class="sp-box dash-skeleton" id="radar" data-source="radar"></div>
+      </div>
+      <div class="sp-card" id="venn-card" style="grid-column: 1 / -1">
+        <h3>文氏圖與位置圖：哪些地方一直在變</h3>
+        <div class="note">三個圓代表三段期間（2025/9/25–10/13、2025/10/13–2026/3/14、2026/3/14–9/14）；圓內的數字是 |Δz| &gt; 1 m 的面積（公頃）。圓重疊處就是不同期間都有變動的地方。下方地圖把這些面積畫回實際位置。</div>
+        <div class="vn-wrap">
+          <div class="sp-box dash-skeleton" id="venn" data-source="venn"></div>
+          <div class="tm-wrap"><table class="tm-table" id="vn-table" data-source="venn_tbl" data-row-key="label">
+            <thead><tr><th data-field="label">在哪些期間有變動</th><th data-field="area_ha">面積（公頃）</th><th data-field="share">占比</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <h4 class="pm-title">📍 這些地方在哪裡？每一小格（50 m）依有變動的期間上色</h4>
+        <div class="note" style="margin-top: 0">圖上的顏色和上方文氏圖、表格的色塊一一對應。<b>桃紅色 = 三段期間都在變（持續活動區）</b>。點下方色塊、點文氏圖的數字、或把滑鼠移到表格的列，可以只看那一類。</div>
+        <div class="sp-box pm dash-skeleton" id="persist" data-source="persist satellite geo"></div>
+        <div class="ms-legend pm-legend" id="persist-legend"></div>
+      </div>
+      <div class="sp-card" id="sankey-card" style="grid-column: 1 / -1">
+        <h3>桑基圖：土砂從哪裡流失，最後停在哪裡</h3>
+        <div class="note">怎麼讀：帶子的寬度 = 土方量（萬 m³）。左邊是被沖走的地方，中間是合計，右邊是這些土砂最後的去處。三期加總，A、B 兩區流失的量會留在 C、D 河床，或繼續往下游走。</div>
+        <div class="sp-box dash-skeleton" id="sankey" data-source="sankey"></div>
+      </div>
+      <div class="sp-card" id="funnel-card" style="grid-column: 1 / -1">
+        <h3>漏斗圖：土砂一路上留下多少、剩下多少</h3>
+        <div class="note">怎麼讀：從上到下是土砂往下游走的路。最上面是 A、B 兩區流失的全部土砂（100%）；每走過一段河道，就有一部分留在河床裡（箭頭旁的數字），漏斗也跟著變窄；最底下是流出治理範圍、繼續往下游走的部分。三期加總，單位萬 m³。</div>
+        <div class="sp-box dash-skeleton" id="funnel" data-source="funnel"></div>
+      </div>
+      <div class="sp-card" id="tree-card" style="grid-column: 1 / -1">
+        <h3>樹狀圖：沖蝕與淤積，各發生在哪一區、哪一段期間</h3>
+        <div class="note">怎麼讀：左邊這張是「<b>被沖走</b>」的土砂，右邊這張是「<b>堆起來</b>」的土砂。每一張裡，<b>大塊 = 一個分區</b>（顏色和地圖一樣：A 紫、B 紅、C 藍、D 綠），大塊裡再依<b>期間</b>切成小格（深色 = 9/25–10/13，中等 = 10/13–3/14，淺色 = 3/14–9/14）。<b>格子越大，土方越多</b>。兩張圖各自縮放，請以格子上的數字比較。點小格可以在上方地圖看那個分區與期間。</div>
+        <div class="sp-box dash-skeleton" id="tree" data-source="treemap"></div>
+        <div class="ms-legend" id="tree-legend"></div>
+        <div class="tm-wrap" style="margin-top: var(--cds-gap-md)"><table class="tm-table" id="tm-table" data-source="tmtable" data-row-key="zone">
+          <thead><tr><th data-field="zone">分區</th><th data-field="e1">沖蝕 9/25–10/13</th><th data-field="e2">沖蝕 10/13–3/14</th><th data-field="e3">沖蝕 3/14–9/14</th><th data-field="et">沖蝕 合計</th><th data-field="d1">淤積 9/25–10/13</th><th data-field="d2">淤積 10/13–3/14</th><th data-field="d3">淤積 3/14–9/14</th><th data-field="dt">淤積 合計</th><th data-field="net">淨變化</th></tr></thead><tbody></tbody></table></div>
+        <div class="note" style="margin: var(--cds-gap-xs) 0 0">單位：萬 m³。只計 |Δz| &gt; 1 m 的格點。淨變化 = 淤積合計 − 沖蝕合計，負值代表該區整體在流失。</div>
+      </div>
+    </section>
+
+
+  <footer class="ms-foot" id="method">
+    方法：五期 DEM（250816、250925、251013、260314、260914）重取樣至 5 m 共同網格，扣除穩定區系統偏差（中位數 +0.04～+0.48 m），偵測門檻 1 m。A/B/C 分區為目視劃定的近似範圍，D 區依衛星影像上的礫石河道範圍劃定。各區的沖淤量以 2025/9/25 為基準、與後續各期 DEM 直接相減；分期的值為累積值逐期相減。樹狀圖、文氏圖等的沖蝕與淤積量只計 |Δz| > 1 m 的格點，因此與淨變化略有差異。衛星影像為兩期空拍正射影像縮成約 10 m 解析度顯示。
+  </footer>
+</div>
+
+
+
+</div>
+<script src="js/shim.js"></script>
+</body>
+</html>
